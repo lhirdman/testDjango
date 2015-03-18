@@ -8,9 +8,22 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.7/ref/settings/
 """
 
+# For when DEBUG is off
+from django.conf import settings
+from django.conf.urls.static import static
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+TEMPLATE_PATH = os.path.join(BASE_DIR, 'templates')
+
+TEMPLATE_DIRS = (
+    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
+    # Always use forward slashes, even on Windows.
+    # Don't forget to use absolute paths, not relative paths.
+    TEMPLATE_PATH,
+)
+
 
 
 # Quick-start development settings - unsuitable for production
@@ -82,3 +95,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.7/howto/static-files/
 
 STATIC_URL = '/static/'
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media') # Absolute path to the media directory
+
+if not settings.DEBUG:
+        urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
