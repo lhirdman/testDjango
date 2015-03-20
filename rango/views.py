@@ -4,12 +4,30 @@ from rango.models import Category, Page
 from rango.forms import CategoryForm, PageForm, UserForm, UserProfileForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from datetime import datetime
 
 def index(request):
     category_list = Category.objects.order_by('-likes')[:5]
     pages_list = Page.objects.order_by('-views')[:5]
     context_dict = {'categories': category_list, 'pages': pages_list}
-    return render(request, 'rango/index.html', context_dict)
+    visits = request.session.get('visits')
+    if not visits:
+        visits = 1
+    reset_last_visit_time = False
+    last_visit = request.session.get('last_visit')
+    if last_visit:
+        last_visit_time = datetime.strptime(last_visit[:-7], "%Y-%m-%d %H:%M:%S")
+        if (datetime.now() - last_visit_time).seconds > 5:
+            visits = visits + 1
+            reset_last_visit_time = True
+    else:
+        reset_last_visit_time = True
+    if reset_last_visit_time:
+        request.session['last_visit'] = str(datetime.now())
+        request.session['visits'] = visits
+    context_dict['visits'] = visits
+    response = render(request,'rango/index.html', context_dict)
+    return response
 
 def category(request, category_name_slug):
     context_dict = {}
@@ -25,7 +43,11 @@ def category(request, category_name_slug):
     return render(request, 'rango/category.html', context_dict)
 
 def about(request):
-    context_dict = {'boldmessage': "Aboot fscking time"}
+    if request.session.get('visits'):
+        count = request.session.get('visits')
+    else:
+        count = 0
+    context_dict = {'boldmessage': "Aboot fscking time", 'visits': count}
     return render(request, 'rango/about.html', context_dict)
 
 def add_category(request):
