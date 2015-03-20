@@ -1,0 +1,7 @@
+{% extends 'rango/base.html' %}
+{% block title %}{{ category_name }}{% endblock %}
+{% block body_block %}
+        <h1>Restricted with Rango</h1>
+        <p>Rango says: Welcome <strong>{{ user.username }}</strong>
+        <p><a href="{% url 'index' %}">Return to the homepage.</a><br />
+{% endblock %}
